@@ -1,0 +1,37 @@
+from pathlib import Path
+
+
+PROJECT_ROOT = Path(__file__).resolve().parents[3]
+DATA_DIR = PROJECT_ROOT / "data"
+RAW_DATA_DIR = DATA_DIR / "raw"
+PROCESSED_DATA_DIR = DATA_DIR / "processed"
+REPORTS_DIR = PROJECT_ROOT / "reports"
+FIGURES_DIR = REPORTS_DIR / "figures"
+METRICS_DIR = REPORTS_DIR / "metrics"
+
+# Default experiment settings for the baseline pipeline.
+RANDOM_STATE = 42
+DEFAULT_TEXT_COLUMN = "review"
+DEFAULT_LABEL_COLUMN = "sentiment"
+DEFAULT_TEST_SIZE = 0.2
+DEFAULT_MAX_FEATURES = 5000
+DEFAULT_NGRAM_RANGE = (1, 2)
+DEFAULT_NUM_CLUSTERS = 4
+DEFAULT_CLUSTER_SAMPLE_SIZE = 5000
+DEFAULT_TOP_TERMS_PER_CLUSTER = 8
+DEFAULT_CLUSTER_REDUCTION_COMPONENTS = 2
+DEFAULT_ERROR_ANALYSIS_SAMPLES = 5
+DEFAULT_LLM_BACKEND = "auto"
+DEFAULT_OPENAI_MODEL = "gpt-5.4-mini"
+DEFAULT_OLLAMA_MODEL = "qwen2.5:7b"
+DEFAULT_OLLAMA_BASE_URL = "http://localhost:11434/v1"
+DEFAULT_LLM_SAMPLE_SIZE = 100
+DEFAULT_LLM_MAX_OUTPUT_TOKENS = 10
+DEFAULT_LLM_PROMPT_STYLES = ["zero_shot", "few_shot"]
+
+DEFAULT_DATASET_CANDIDATES = [
+    RAW_DATA_DIR / "imdb_reviews.csv",
+    RAW_DATA_DIR / "imdb_reviews.tsv",
+    RAW_DATA_DIR / "imdb_reviews.jsonl",
+    RAW_DATA_DIR / "imdb_reviews.json",
+]
