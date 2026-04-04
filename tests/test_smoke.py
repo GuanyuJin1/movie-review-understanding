@@ -201,6 +201,7 @@ def test_llm_prompt_builders_include_review_text():
 def test_parse_sentiment_label_normalizes_basic_outputs():
     assert parse_sentiment_label("positive") == "positive"
     assert parse_sentiment_label("Negative") == "negative"
+    assert parse_sentiment_label("neutral") == "negative"
 
 
 def test_openai_backend_requires_api_key():

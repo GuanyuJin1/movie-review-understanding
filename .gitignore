@@ -19,10 +19,6 @@ env/
 # Data outputs
 data/processed/*
 !data/processed/.gitkeep
-reports/figures/*
-!reports/figures/.gitkeep
-reports/metrics/*
-!reports/metrics/.gitkeep
 
 # Raw dataset files
 data/raw/aclImdb/

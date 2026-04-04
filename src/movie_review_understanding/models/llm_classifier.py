@@ -1,4 +1,5 @@
 import os
+import re
 from dataclasses import dataclass
 from typing import List, Optional, Tuple
 
@@ -18,6 +19,10 @@ from src.movie_review_understanding.config.settings import (
 from src.movie_review_understanding.features.tfidf import TfidfDatasetSplit
 from src.movie_review_understanding.models.classifiers import ClassificationResult
 
+POSITIVE_HINTS = {"positive", "pos", "good", "favorable", "favourable"}
+NEGATIVE_HINTS = {"negative", "neg", "bad", "unfavorable", "unfavourable"}
+TOKEN_RE = re.compile(r"[a-z]+")
+
 
 @dataclass
 class LLMExperimentResult:
@@ -35,8 +40,10 @@ class LLMConfigurationError(ValueError):
 def build_zero_shot_prompt(review_text: str) -> str:
     """Create a zero-shot sentiment classification prompt."""
     return (
-        "You are a sentiment classifier for movie reviews. "
-        "Return exactly one label: positive or negative.\n\n"
+        "You are a binary sentiment classifier for movie reviews. "
+        "Choose only one label: positive or negative. "
+        "Do not answer neutral, mixed, or uncertain. "
+        "If the review is mixed, choose the stronger overall sentiment.\n\n"
         f"Review:\n{review_text}\n\n"
         "Label:"
     )
@@ -45,8 +52,10 @@ def build_zero_shot_prompt(review_text: str) -> str:
 def build_few_shot_prompt(review_text: str) -> str:
     """Create a few-shot sentiment classification prompt."""
     return (
-        "You are a sentiment classifier for movie reviews. "
-        "Return exactly one label: positive or negative.\n\n"
+        "You are a binary sentiment classifier for movie reviews. "
+        "Choose only one label: positive or negative. "
+        "Do not answer neutral, mixed, or uncertain. "
+        "If the review is mixed, choose the stronger overall sentiment.\n\n"
         "Examples:\n"
         "Review: This movie was touching, beautifully acted, and deeply memorable.\n"
         "Label: positive\n\n"
@@ -64,6 +73,8 @@ def build_few_shot_prompt(review_text: str) -> str:
 def parse_sentiment_label(raw_text: str) -> str:
     """Normalize a raw model response to the project labels."""
     normalized = raw_text.strip().lower()
+    tokens = set(TOKEN_RE.findall(normalized))
+
     if "positive" in normalized and "negative" not in normalized:
         return "positive"
     if "negative" in normalized and "positive" not in normalized:
@@ -72,6 +83,18 @@ def parse_sentiment_label(raw_text: str) -> str:
         return "positive"
     if normalized in {"neg", "negative."}:
         return "negative"
+
+    has_positive_hint = bool(tokens.intersection(POSITIVE_HINTS))
+    has_negative_hint = bool(tokens.intersection(NEGATIVE_HINTS))
+
+    if has_positive_hint and not has_negative_hint:
+        return "positive"
+    if has_negative_hint and not has_positive_hint:
+        return "negative"
+
+    if "neutral" in tokens or "mixed" in tokens or "uncertain" in tokens:
+        return "negative"
+
     raise ValueError(f"Could not parse sentiment label from response: {raw_text!r}")
 
 
