@@ -14,42 +14,47 @@ This repository is structured for a Data Science final project with:
 - evaluation, error analysis, and visualization
 - a simple terminal demo
 
-## Recommended Structure
-
-- `data/`
-  - `raw/`: original datasets such as IMDb
-  - `processed/`: cleaned splits and intermediate artifacts
-- `notebooks/`: optional exploration notebooks
-- `reports/`
-  - `figures/`: generated plots and charts
-  - `metrics/`: saved evaluation summaries for reporting
-- `scripts/`: runnable entry points for demo and dataset preparation
-- `src/movie_review_understanding/`: reusable project code
-  - `config/`: project settings and constants
-  - `data/`: loading and preprocessing utilities
-  - `features/`: TF-IDF and other text features
-  - `models/`: clustering, ML classifiers, and LLM classifier modules
-  - `evaluation/`: metrics, error analysis, and visualization helpers
-  - `demo/`: terminal demo orchestration
-- `tests/`: unit tests for reusable logic
-
 ## Best Way To Run
 
-The best demo experience is:
+For teammates, instructors, or Codex agents, use this order.
 
-1. Prepare the IMDb dataset locally.
-2. Run the terminal demo with Python 3.9+:
+1. Install dependencies:
 
 ```powershell
-py scripts/run_demo.py
+py -m pip install -r requirements.txt
 ```
 
-3. For the LLM step, the preferred order is:
-   - local `Ollama` with `qwen2.5:7b`
-   - `OpenAI` API as an optional fallback
-   - automatic skip if neither backend is available
+2. Prepare the IMDb dataset locally. See `Dataset Setup` below.
 
-This means the full project can still run for your instructor or teammates even if no LLM backend is configured.
+3. Run the non-LLM demo first. This is the safest command for CPU-only machines:
+
+```powershell
+py scripts/run_demo.py --skip-llm
+```
+
+4. If the machine has local Ollama with a usable GPU, run a small LLM demo:
+
+```powershell
+py scripts/run_demo.py --llm-sample-size 10
+```
+
+5. For the full local demo used in this project, run:
+
+```powershell
+py scripts/run_demo.py --llm-sample-size 100
+```
+
+The LLM step is optional. If no LLM backend is available, the project can still run the traditional ML, clustering, evaluation, and visualization workflow.
+
+## Codex Agent Instruction
+
+If using Codex to run this repository on a teammate's machine, give it this instruction:
+
+```text
+Read README.md. Prepare the dataset if needed. First run `py -m pytest`, then run `py scripts/run_demo.py --skip-llm`. Only run the LLM step with `--llm-sample-size 10` if Ollama is installed and GPU acceleration is available.
+```
+
+This avoids long CPU-only Ollama runs.
 
 ## Dataset Setup
 
@@ -89,7 +94,7 @@ This will generate:
 data/raw/imdb_reviews.csv
 ```
 
-### If you are a teammate cloning this repository
+### If You Are A Teammate Cloning This Repository
 
 After cloning the repository, the raw dataset will still be missing by design. To run the project locally:
 
@@ -100,25 +105,23 @@ After cloning the repository, the raw dataset will still be missing by design. T
 py scripts/prepare_imdb_dataset.py
 ```
 
-3. Then run:
+3. Run the fast validation path:
 
 ```powershell
 py -m pytest
-py scripts/run_demo.py
+py scripts/run_demo.py --skip-llm
 ```
 
-## Recommended Run Order
-
-After the dataset is ready, use the following order:
+4. Optional LLM check, only if Ollama is ready:
 
 ```powershell
-py -m pytest
-py scripts/run_demo.py
+ollama pull qwen2.5:7b
+py scripts/run_demo.py --llm-sample-size 10
 ```
 
 ## LLM Options
 
-### Option A: Local Ollama (Recommended for demo)
+### Option A: Local Ollama (Recommended For Demo)
 
 Install and run Ollama, then pull a model such as:
 
@@ -126,7 +129,7 @@ Install and run Ollama, then pull a model such as:
 ollama pull qwen2.5:7b
 ```
 
-The code will automatically try Ollama first.
+The code will automatically try Ollama first. If the machine is CPU-only, use `--skip-llm` or a small sample size such as `--llm-sample-size 5`.
 
 ### Option B: OpenAI API (Optional)
 
@@ -147,6 +150,25 @@ Running the demo will generate:
 - error analysis samples in terminal output
 - figures under `reports/figures/`
 - summary tables under `reports/metrics/`
+
+## Recommended Structure
+
+- `data/`
+  - `raw/`: original datasets such as IMDb
+  - `processed/`: cleaned splits and intermediate artifacts
+- `notebooks/`: optional exploration notebooks
+- `reports/`
+  - `figures/`: generated plots and charts
+  - `metrics/`: saved evaluation summaries for reporting
+- `scripts/`: runnable entry points for demo and dataset preparation
+- `src/movie_review_understanding/`: reusable project code
+  - `config/`: project settings and constants
+  - `data/`: loading and preprocessing utilities
+  - `features/`: TF-IDF and other text features
+  - `models/`: clustering, ML classifiers, and LLM classifier modules
+  - `evaluation/`: metrics, error analysis, and visualization helpers
+  - `demo/`: terminal demo orchestration
+- `tests/`: unit tests for reusable logic
 
 ## Current Status
 

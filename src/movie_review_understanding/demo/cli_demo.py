@@ -1,3 +1,5 @@
+from typing import Optional
+
 from dotenv import load_dotenv
 
 from src.movie_review_understanding.config.settings import (
@@ -28,7 +30,7 @@ from src.movie_review_understanding.models.llm_classifier import (
 load_dotenv()
 
 
-def run_demo() -> None:
+def run_demo(skip_llm: bool = False, llm_sample_size: Optional[int] = None) -> None:
     """Run a terminal demo for preprocessing, TF-IDF, clustering, classification, and evaluation."""
     print("Intelligent Movie Review Understanding Demo")
     print("Stage: preprocessing + TF-IDF + clustering + classification + evaluation + LLM")
@@ -117,24 +119,27 @@ def run_demo() -> None:
 
     print()
     print("LLM Classification:")
-    try:
-        llm_results = run_llm_experiments(
-            tfidf_data,
-            backend=DEFAULT_LLM_BACKEND,
-            sample_size=DEFAULT_LLM_SAMPLE_SIZE,
-        )
-        for experiment in llm_results:
-            metrics = evaluate_predictions(experiment.classification_result)
-            print(
-                f"  Backend: {experiment.backend}, Prompt Style: {experiment.prompt_style}, "
-                f"Model: {experiment.model_name}, Sample Size: {experiment.sample_size}, "
-                f"Accuracy: {metrics['accuracy']:.4f}, F1: {metrics['f1']:.4f}"
+    if skip_llm:
+        print("  Skipped by --skip-llm.")
+    else:
+        try:
+            llm_results = run_llm_experiments(
+                tfidf_data,
+                backend=DEFAULT_LLM_BACKEND,
+                sample_size=llm_sample_size or DEFAULT_LLM_SAMPLE_SIZE,
             )
-    except LLMConfigurationError:
-        print("  Skipped: no available LLM backend was detected.")
-        print(
-            f"  Best local option: Ollama with model {DEFAULT_OLLAMA_MODEL}. "
-            f"Optional cloud option: OpenAI with model {DEFAULT_OPENAI_MODEL}."
-        )
+            for experiment in llm_results:
+                metrics = evaluate_predictions(experiment.classification_result)
+                print(
+                    f"  Backend: {experiment.backend}, Prompt Style: {experiment.prompt_style}, "
+                    f"Model: {experiment.model_name}, Sample Size: {experiment.sample_size}, "
+                    f"Accuracy: {metrics['accuracy']:.4f}, F1: {metrics['f1']:.4f}"
+                )
+        except LLMConfigurationError:
+            print("  Skipped: no available LLM backend was detected.")
+            print(
+                f"  Best local option: Ollama with model {DEFAULT_OLLAMA_MODEL}. "
+                f"Optional cloud option: OpenAI with model {DEFAULT_OPENAI_MODEL}."
+            )
 
     print("Status: clustering, traditional ML, evaluation, visualization, demo flow, and LLM workflow are ready.")
