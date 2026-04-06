@@ -19,6 +19,8 @@ from src.movie_review_understanding.models.llm_classifier import (
     build_zero_shot_prompt,
     classify_with_llm,
     parse_sentiment_label,
+    _resolve_backend,
+    _build_client,
 )
 
 
@@ -226,3 +228,22 @@ def test_openai_backend_requires_api_key():
         raised = True
 
     assert raised is True
+
+def test_openai_backend_accepts_explicit_api_key_without_network_call(monkeypatch):
+    monkeypatch.setenv("OPENAI_MODEL", "test-openai-model")
+
+    resolved_backend = _resolve_backend(
+        backend="openai",
+        api_key="fake-test-key",
+        ollama_base_url="http://localhost:11434/v1",
+    )
+    _, model_name = _build_client(
+        resolved_backend=resolved_backend,
+        api_key="fake-test-key",
+        ollama_base_url="http://localhost:11434/v1",
+    )
+
+    assert resolved_backend == "openai"
+    assert model_name == "test-openai-model"
+
+

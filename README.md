@@ -10,7 +10,7 @@ This repository is structured for a Data Science final project with:
 - TF-IDF feature engineering
 - clustering
 - sentiment classification with multiple algorithms
-- LLM-based classification through API prompting
+- LLM-based classification through prompt/API-style calling
 - evaluation, error analysis, and visualization
 - a simple terminal demo
 
@@ -26,35 +26,97 @@ py -m pip install -r requirements.txt
 
 2. Prepare the IMDb dataset locally. See `Dataset Setup` below.
 
-3. Run the non-LLM demo first. This is the safest command for CPU-only machines:
+3. Run tests:
+
+```powershell
+py -m pytest
+```
+
+4. Run the fast validation path without LLM. This verifies preprocessing, TF-IDF, clustering, traditional ML, evaluation, and visualization:
 
 ```powershell
 py scripts/run_demo.py --skip-llm
 ```
 
-4. If the machine has local Ollama with a usable GPU, run a small LLM demo:
-
-```powershell
-py scripts/run_demo.py --llm-sample-size 10
-```
-
-5. For the full local demo used in this project, run:
+5. Run the full project demo with LLM only after one LLM backend is configured. See `Full LLM Demo Requirement` below:
 
 ```powershell
 py scripts/run_demo.py --llm-sample-size 100
 ```
 
-The LLM step is optional. If no LLM backend is available, the project can still run the traditional ML, clustering, evaluation, and visualization workflow.
+## Full LLM Demo Requirement
+
+The project includes an LLM-based classification component, and the full project demo should run it. However, LLM execution requires one configured backend. The default `LLM_BACKEND=auto` mode uses this order:
+
+1. Try local Ollama first.
+2. If Ollama is not available, try OpenAI using `OPENAI_API_KEY`.
+3. If neither backend is available, skip LLM gracefully and continue the non-LLM workflow.
+
+This fallback prevents the demo from crashing on machines without LLM setup. It does not mean the LLM component is removed. For final verification of the LLM requirement, use Option A or Option B below.
+
+Runtime note: `--llm-sample-size 100` runs both prompt styles (`zero_shot` and `few_shot`), so it can make about 200 LLM calls. Local Ollama on a GPU is usually much faster. Cloud API mode uses remote requests and can take noticeably longer; wait for it to finish or use `--llm-sample-size 10` for a quick check.
+
+### Option A: Local Ollama Backend
+
+Install Ollama and pull the local model used in this project:
+
+```powershell
+ollama pull qwen2.5:7b
+```
+
+Then run:
+
+```powershell
+py scripts/run_demo.py --llm-sample-size 100
+```
+
+For a quick LLM smoke test on slower machines, use a smaller sample:
+
+```powershell
+py scripts/run_demo.py --llm-sample-size 10
+```
+
+### Option B: Cloud API Backend
+
+Create a private local `.env` file in the project root. Do not commit this file to GitHub.
+
+```env
+OPENAI_API_KEY=your_openai_api_key_here
+```
+
+If `LLM_BACKEND=auto` and Ollama is not available, the demo will automatically fall back to a configured cloud API key. In this project, the cloud backend is implemented with the OpenAI-compatible SDK path and uses `LLM_BACKEND=openai`. If you set `LLM_BACKEND=openai`, it will skip Ollama detection and use the API key directly:
+
+```powershell
+py scripts/run_demo.py --llm-sample-size 100
+```
+
+If you want to force the OpenAI backend, add this to your private `.env` file:
+
+```env
+LLM_BACKEND=openai
+```
+
+A real API key should never be hardcoded in Python files, committed to GitHub, or placed in `.env.example`. If another OpenAI-compatible provider or model is used, update the local `.env` settings and code configuration accordingly.
+
+### Fallback: Skip LLM
+
+If the machine has neither Ollama nor a configured API key, use:
+
+```powershell
+py scripts/run_demo.py --skip-llm
+```
+
+This is useful for teammates or graders who only want to validate the non-LLM pipeline. It is not the full LLM demo.
 
 ## Codex Agent Instruction
 
 If using Codex to run this repository on a teammate's machine, give it this instruction:
 
 ```text
-Read README.md. Prepare the dataset if needed. First run `py -m pytest`, then run `py scripts/run_demo.py --skip-llm`. Only run the LLM step with `--llm-sample-size 10` if Ollama is installed and GPU acceleration is available.
+Read README.md. Prepare the dataset if needed. First run `py -m pytest`, then run `py scripts/run_demo.py --skip-llm`. Do not install Ollama automatically unless the user explicitly asks for it. Only run the LLM step with `--llm-sample-size 10` if Ollama is already installed or a compatible API key is already configured.
 ```
 
-This avoids long CPU-only Ollama runs.
+This avoids long CPU-only or accidental LLM setup runs.
 
 ## Dataset Setup
 
@@ -98,7 +160,7 @@ data/raw/imdb_reviews.csv
 
 After cloning the repository, the raw dataset will still be missing by design. To run the project locally:
 
-1. Download and extract the original `aclImdb` dataset into `data/raw/aclImdb/`
+1. Download and extract the original `aclImdb` dataset into `data/raw/aclImdb/`.
 2. Run:
 
 ```powershell
@@ -112,34 +174,11 @@ py -m pytest
 py scripts/run_demo.py --skip-llm
 ```
 
-4. Optional LLM check, only if Ollama is ready:
+4. Optional full LLM path, only after an LLM backend is configured:
 
 ```powershell
-ollama pull qwen2.5:7b
-py scripts/run_demo.py --llm-sample-size 10
+py scripts/run_demo.py --llm-sample-size 100
 ```
-
-## LLM Options
-
-### Option A: Local Ollama (Recommended For Demo)
-
-Install and run Ollama, then pull a model such as:
-
-```powershell
-ollama pull qwen2.5:7b
-```
-
-The code will automatically try Ollama first. If the machine is CPU-only, use `--skip-llm` or a small sample size such as `--llm-sample-size 5`.
-
-### Option B: OpenAI API (Optional)
-
-Create a local `.env` file from `.env.example` and set:
-
-```env
-OPENAI_API_KEY=your_openai_api_key_here
-```
-
-If Ollama is not available, the project can fall back to OpenAI.
 
 ## What The Demo Produces
 
@@ -148,6 +187,7 @@ Running the demo will generate:
 - clustering summary in terminal output
 - classifier metrics in terminal output
 - error analysis samples in terminal output
+- optional LLM classification metrics when an LLM backend is configured
 - figures under `reports/figures/`
 - summary tables under `reports/metrics/`
 
@@ -180,10 +220,16 @@ The project now includes a working baseline workflow for:
 - K-Means clustering
 - three traditional sentiment classification baselines
 - evaluation metrics, error analysis, and visualizations
-- optional LLM classification with graceful fallback
+- LLM classification with Ollama or OpenAI backend support
+- graceful fallback when no LLM backend is configured
 
 ## Notes For Demo
 
 - The repository includes generated figures and metric summaries, but not the full raw dataset.
-- If no LLM backend is available, the demo will skip the LLM section and continue normally.
+- The full LLM demo requires local Ollama or a configured API key.
+- `--skip-llm` is a compatibility fallback, not the full LLM demo.
 - This project is designed as a course demo, not a production application.
+
+
+
+

@@ -1,5 +1,7 @@
 from typing import Optional
 
+from openai import OpenAIError
+
 from dotenv import load_dotenv
 
 from src.movie_review_understanding.config.settings import (
@@ -8,6 +10,7 @@ from src.movie_review_understanding.config.settings import (
     DEFAULT_LLM_SAMPLE_SIZE,
     DEFAULT_OLLAMA_MODEL,
     DEFAULT_OPENAI_MODEL,
+    PROJECT_ROOT,
 )
 from src.movie_review_understanding.data.loader import load_reviews
 from src.movie_review_understanding.evaluation.metrics import (
@@ -27,7 +30,7 @@ from src.movie_review_understanding.models.llm_classifier import (
     run_llm_experiments,
 )
 
-load_dotenv()
+load_dotenv(PROJECT_ROOT / ".env", override=True)
 
 
 def run_demo(skip_llm: bool = False, llm_sample_size: Optional[int] = None) -> None:
@@ -135,11 +138,24 @@ def run_demo(skip_llm: bool = False, llm_sample_size: Optional[int] = None) -> N
                     f"Model: {experiment.model_name}, Sample Size: {experiment.sample_size}, "
                     f"Accuracy: {metrics['accuracy']:.4f}, F1: {metrics['f1']:.4f}"
                 )
-        except LLMConfigurationError:
-            print("  Skipped: no available LLM backend was detected.")
+        except LLMConfigurationError as exc:
+            print(f"  Skipped: {exc}")
             print(
                 f"  Best local option: Ollama with model {DEFAULT_OLLAMA_MODEL}. "
                 f"Optional cloud option: OpenAI with model {DEFAULT_OPENAI_MODEL}."
             )
+        except OpenAIError as exc:
+            print("  Skipped: the configured LLM backend returned an API error.")
+            print(f"  Error type: {type(exc).__name__}")
+            print(f"  Error detail: {exc}")
+            print("  Tip: check the API key, quota/billing, model name, or use --skip-llm.")
+        except Exception as exc:
+            print("  Skipped: the configured LLM backend failed unexpectedly.")
+            print(f"  Error type: {type(exc).__name__}")
+            print(f"  Error detail: {exc}")
+            print("  Tip: use --skip-llm for the non-LLM demo path, or configure Ollama/OpenAI again.")
 
     print("Status: clustering, traditional ML, evaluation, visualization, demo flow, and LLM workflow are ready.")
+
+
+

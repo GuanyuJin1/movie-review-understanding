@@ -12,6 +12,7 @@ from src.movie_review_understanding.config.settings import (
     DEFAULT_LLM_PROMPT_STYLES,
     DEFAULT_LLM_SAMPLE_SIZE,
     DEFAULT_OLLAMA_BASE_URL,
+    DEFAULT_OLLAMA_DETECTION_TIMEOUT_SECONDS,
     DEFAULT_OLLAMA_MODEL,
     DEFAULT_OPENAI_MODEL,
     RANDOM_STATE,
@@ -138,7 +139,11 @@ def _can_use_openai(api_key: Optional[str]) -> bool:
 
 def _can_use_ollama(base_url: str = DEFAULT_OLLAMA_BASE_URL) -> bool:
     try:
-        client = OpenAI(base_url=base_url, api_key="ollama")
+        client = OpenAI(
+            base_url=base_url,
+            api_key="ollama",
+            timeout=DEFAULT_OLLAMA_DETECTION_TIMEOUT_SECONDS,
+        )
         client.models.list()
         return True
     except Exception:
@@ -172,8 +177,8 @@ def _resolve_backend(
 
 def _build_client(resolved_backend: str, api_key: Optional[str], ollama_base_url: str) -> Tuple[OpenAI, str]:
     if resolved_backend == "ollama":
-        return OpenAI(base_url=ollama_base_url, api_key="ollama"), DEFAULT_OLLAMA_MODEL
-    return OpenAI(api_key=api_key or os.getenv("OPENAI_API_KEY")), DEFAULT_OPENAI_MODEL
+        return OpenAI(base_url=ollama_base_url, api_key="ollama"), os.getenv("OLLAMA_MODEL", DEFAULT_OLLAMA_MODEL)
+    return OpenAI(api_key=api_key or os.getenv("OPENAI_API_KEY")), os.getenv("OPENAI_MODEL", DEFAULT_OPENAI_MODEL)
 
 
 def classify_with_llm(
@@ -186,8 +191,10 @@ def classify_with_llm(
     ollama_base_url: str = DEFAULT_OLLAMA_BASE_URL,
 ) -> LLMExperimentResult:
     """Classify a sampled subset with a configured LLM backend."""
-    resolved_backend = _resolve_backend(backend, api_key, ollama_base_url)
-    client, default_model = _build_client(resolved_backend, api_key, ollama_base_url)
+    effective_backend = os.getenv("LLM_BACKEND", backend)
+    effective_ollama_base_url = os.getenv("OLLAMA_BASE_URL", ollama_base_url)
+    resolved_backend = _resolve_backend(effective_backend, api_key, effective_ollama_base_url)
+    client, default_model = _build_client(resolved_backend, api_key, effective_ollama_base_url)
     resolved_model_name = model_name or default_model
 
     texts, true_labels = _select_llm_subset(dataset, sample_size=sample_size)
@@ -240,3 +247,4 @@ def run_llm_experiments(
         )
         for style in styles
     ]
+

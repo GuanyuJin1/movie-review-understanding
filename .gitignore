@@ -27,3 +27,6 @@ data/raw/imdb_reviews.csv
 
 # Environment files
 .env
+
+# Local hardware diagnostics
+gpu_log.csv
