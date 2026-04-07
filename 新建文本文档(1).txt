@@ -1,0 +1,103 @@
+PS D:\GNG5125\final project> py scripts/run_demo.py
+Intelligent Movie Review Understanding Demo
+Stage: preprocessing + TF-IDF + clustering + classification + evaluation + LLM
+Loaded reviews: 50000
+Training samples: 40000
+Test samples: 10000
+TF-IDF feature count: 5000
+
+Clustering Algorithm: K-Means
+Cluster Count: 4
+Cluster Sample Size: 5000
+Silhouette Score: 0.0020
+Cluster Sizes: {0: 1736, 1: 1078, 2: 1065, 3: 1121}
+Cluster Sentiment Mix:
+  Cluster 0: {'positive': 1168, 'negative': 568} | dominant=positive | top_terms=movie, story, film, time, love, like, good, great
+  Cluster 1: {'positive': 531, 'negative': 547} | dominant=negative | top_terms=movie, movies, good, like, just, great, really, time
+  Cluster 2: {'positive': 217, 'negative': 848} | dominant=negative | top_terms=movie, bad, like, just, really, dont, good, people
+  Cluster 3: {'positive': 620, 'negative': 501} | dominant=positive | top_terms=film, films, like, just, story, good, great, really
+
+Traditional Model Ranking:
+  1. Logistic Regression | accuracy=0.8878 | f1=0.8878
+  2. Linear SVM | accuracy=0.8801 | f1=0.8801
+  3. Multinomial Naive Bayes | accuracy=0.8573 | f1=0.8573
+
+Model: Multinomial Naive Bayes
+Accuracy: 0.8573
+Precision: 0.8576
+Recall: 0.8573
+F1 Score: 0.8573
+Confusion Matrix Labels: ['negative', 'positive']
+[[4216  784]
+ [ 643 4357]]
+Classification Report:
+              precision    recall  f1-score   support
+
+    negative       0.87      0.84      0.86      5000
+    positive       0.85      0.87      0.86      5000
+
+    accuracy                           0.86     10000
+   macro avg       0.86      0.86      0.86     10000
+weighted avg       0.86      0.86      0.86     10000
+
+
+Model: Logistic Regression
+Accuracy: 0.8878
+Precision: 0.8880
+Recall: 0.8878
+F1 Score: 0.8878
+Confusion Matrix Labels: ['negative', 'positive']
+[[4377  623]
+ [ 499 4501]]
+Classification Report:
+              precision    recall  f1-score   support
+
+    negative       0.90      0.88      0.89      5000
+    positive       0.88      0.90      0.89      5000
+
+    accuracy                           0.89     10000
+   macro avg       0.89      0.89      0.89     10000
+weighted avg       0.89      0.89      0.89     10000
+
+
+Model: Linear SVM
+Accuracy: 0.8801
+Precision: 0.8802
+Recall: 0.8801
+F1 Score: 0.8801
+Confusion Matrix Labels: ['negative', 'positive']
+[[4366  634]
+ [ 565 4435]]
+Classification Report:
+              precision    recall  f1-score   support
+
+    negative       0.89      0.87      0.88      5000
+    positive       0.87      0.89      0.88      5000
+
+    accuracy                           0.88     10000
+   macro avg       0.88      0.88      0.88     10000
+weighted avg       0.88      0.88      0.88     10000
+
+
+Best Model: Logistic Regression (Accuracy: 0.8878)
+Error Analysis Samples:
+  1. true=negative, predicted=positive, text='welli was going to wait till this came out on video to see it and i wish i had i actually caught scary movie 2 on cable the other day and it made me yearn for m...'
+  2. true=negative, predicted=positive, text='i saw this film when it came out let me see nowthis guy who had earlier skied down mount fuji manages to accumulate the funding and hire personnel to document w...'
+  3. true=positive, predicted=negative, text='spoilers i saw the original on tv sometime ago and remembered this production as less gripping than most beeb costume drama i rewatched on dvd this week and sti...'
+  4. true=positive, predicted=negative, text='i may differ from many people on this board but i enjoy watching mind of mencia the reason i like mind of mencia is the host is not afraid to speak his mind or ...'
+  5. true=negative, predicted=positive, text='you know all those letters to father christmas and jesus that are sent every year well it turns out that they are not actually delivered but dropped off in a ha...'
+Saved Outputs:
+  D:\GNG5125\final project\reports\figures\model_comparison.png
+  D:\GNG5125\final project\reports\figures\cluster_sizes.png
+  D:\GNG5125\final project\reports\figures\cluster_projection.png
+  D:\GNG5125\final project\reports\figures\confusion_matrix_multinomial_naive_bayes.png
+  D:\GNG5125\final project\reports\figures\confusion_matrix_logistic_regression.png
+  D:\GNG5125\final project\reports\figures\confusion_matrix_linear_svm.png
+  D:\GNG5125\final project\reports\metrics\classification_summary.csv
+  D:\GNG5125\final project\reports\metrics\clustering_summary.json
+
+LLM Classification:
+  Backend: ollama, Prompt Style: zero_shot, Model: qwen2.5:7b, Sample Size: 100, Accuracy: 0.9200, F1: 0.9200
+  Backend: ollama, Prompt Style: few_shot, Model: qwen2.5:7b, Sample Size: 100, Accuracy: 0.9400, F1: 0.9400
+Status: clustering, traditional ML, evaluation, visualization, demo flow, and LLM workflow are ready.
+PS D:\GNG5125\final project> 

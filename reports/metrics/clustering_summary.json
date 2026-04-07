@@ -2,29 +2,29 @@
   "algorithm_name": "K-Means",
   "num_clusters": 4,
   "sample_size": 5000,
-  "silhouette_score": 0.0019949652179954503,
+  "silhouette_score": 0.002306534491330637,
   "cluster_sizes": {
-    "0": 1736,
-    "1": 1078,
-    "2": 1065,
-    "3": 1121
+    "0": 1739,
+    "1": 1042,
+    "2": 1215,
+    "3": 1004
   },
   "cluster_sentiment_mix": {
     "0": {
-      "positive": 1168,
-      "negative": 568
+      "positive": 1187,
+      "negative": 552
     },
     "1": {
-      "positive": 531,
-      "negative": 547
+      "positive": 474,
+      "negative": 568
     },
     "2": {
-      "positive": 217,
-      "negative": 848
+      "positive": 329,
+      "negative": 886
     },
     "3": {
-      "positive": 620,
-      "negative": 501
+      "positive": 546,
+      "negative": 458
     }
   },
   "dominant_sentiment_per_cluster": {

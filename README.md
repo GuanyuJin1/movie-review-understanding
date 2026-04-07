@@ -21,7 +21,7 @@ For teammates, instructors, or Codex agents, use this order.
 1. Install dependencies:
 
 ```powershell
-py -m pip install -r requirements.txt
+A:\PY\python.exe -m pip install -r requirements.txt
 ```
 
 2. Prepare the IMDb dataset locally. See `Dataset Setup` below.
@@ -29,19 +29,19 @@ py -m pip install -r requirements.txt
 3. Run tests:
 
 ```powershell
-py -m pytest
+A:\PY\python.exe -m pytest
 ```
 
 4. Run the fast validation path without LLM. This verifies preprocessing, TF-IDF, clustering, traditional ML, evaluation, and visualization:
 
 ```powershell
-py scripts/run_demo.py --skip-llm
+A:\PY\python.exe scripts/run_demo.py --skip-llm
 ```
 
 5. Run the full project demo with LLM only after one LLM backend is configured. See `Full LLM Demo Requirement` below:
 
 ```powershell
-py scripts/run_demo.py --llm-sample-size 100
+A:\PY\python.exe scripts/run_demo.py --llm-sample-size 100
 ```
 
 ## Full LLM Demo Requirement
@@ -67,13 +67,13 @@ ollama pull qwen2.5:7b
 Then run:
 
 ```powershell
-py scripts/run_demo.py --llm-sample-size 100
+A:\PY\python.exe scripts/run_demo.py --llm-sample-size 100
 ```
 
 For a quick LLM smoke test on slower machines, use a smaller sample:
 
 ```powershell
-py scripts/run_demo.py --llm-sample-size 10
+A:\PY\python.exe scripts/run_demo.py --llm-sample-size 10
 ```
 
 ### Option B: Cloud API Backend
@@ -87,7 +87,7 @@ OPENAI_API_KEY=your_openai_api_key_here
 If `LLM_BACKEND=auto` and Ollama is not available, the demo will automatically fall back to a configured cloud API key. In this project, the cloud backend is implemented with the OpenAI-compatible SDK path and uses `LLM_BACKEND=openai`. If you set `LLM_BACKEND=openai`, it will skip Ollama detection and use the API key directly:
 
 ```powershell
-py scripts/run_demo.py --llm-sample-size 100
+A:\PY\python.exe scripts/run_demo.py --llm-sample-size 100
 ```
 
 If you want to force the OpenAI backend, add this to your private `.env` file:
@@ -103,7 +103,7 @@ A real API key should never be hardcoded in Python files, committed to GitHub, o
 If the machine has neither Ollama nor a configured API key, use:
 
 ```powershell
-py scripts/run_demo.py --skip-llm
+A:\PY\python.exe scripts/run_demo.py --skip-llm
 ```
 
 This is useful for teammates or graders who only want to validate the non-LLM pipeline. It is not the full LLM demo.
@@ -113,7 +113,7 @@ This is useful for teammates or graders who only want to validate the non-LLM pi
 If using Codex to run this repository on a teammate's machine, give it this instruction:
 
 ```text
-Read README.md. Prepare the dataset if needed. First run `py -m pytest`, then run `py scripts/run_demo.py --skip-llm`. Do not install Ollama automatically unless the user explicitly asks for it. Only run the LLM step with `--llm-sample-size 10` if Ollama is already installed or a compatible API key is already configured.
+Read README.md. Prepare the dataset if needed. First run `A:\PY\python.exe -m pytest`, then run `A:\PY\python.exe scripts/run_demo.py --skip-llm`. Do not install Ollama automatically unless the user explicitly asks for it. Only run the LLM step with `--llm-sample-size 10` if Ollama is already installed or a compatible API key is already configured.
 ```
 
 This avoids long CPU-only or accidental LLM setup runs.
@@ -147,7 +147,7 @@ data/raw/aclImdb/
 3. Run the preparation script:
 
 ```powershell
-py scripts/prepare_imdb_dataset.py
+A:\PY\python.exe scripts/prepare_imdb_dataset.py
 ```
 
 This will generate:
@@ -164,20 +164,21 @@ After cloning the repository, the raw dataset will still be missing by design. T
 2. Run:
 
 ```powershell
-py scripts/prepare_imdb_dataset.py
+A:\PY\python.exe scripts/prepare_imdb_dataset.py
 ```
 
 3. Run the fast validation path:
 
 ```powershell
-py -m pytest
-py scripts/run_demo.py --skip-llm
+A:\PY\python.exe -m pytest
+A:\PY\python.exe scripts/run_demo.py --skip-llm
 ```
 
 4. Optional full LLM path, only after an LLM backend is configured:
 
 ```powershell
-py scripts/run_demo.py --llm-sample-size 100
+ollama pull qwen2.5:7b
+A:\PY\python.exe scripts/run_demo.py --llm-sample-size 10
 ```
 
 ## What The Demo Produces
@@ -229,7 +230,3 @@ The project now includes a working baseline workflow for:
 - The full LLM demo requires local Ollama or a configured API key.
 - `--skip-llm` is a compatibility fallback, not the full LLM demo.
 - This project is designed as a course demo, not a production application.
-
-
-
-
